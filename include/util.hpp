@@ -6,11 +6,11 @@
 #define BOX_UTIL_HPP
 
 #include <cstddef>
-#include <def.hpp>
+#include <box/def.hpp>
 
-using stepworks::bxx::box;
+using stepworks::bxa::box;
 
-namespace stepworks::bxx{
+namespace stepworks::bxa{
 
     ///dim0  nobox/box
     template <typename ...> struct box_dim;
@@ -45,6 +45,17 @@ namespace stepworks::bxx{
             return (o.index()) ? box_aggregation_size<Ta,Agg>( std::get<   typename box<Ta,Agg>::agg_t >(o)) : 1;
         };
 
+        static const int count_total(const typename box<Ta,Agg>::type &o){
+            if (!o.index())
+                return 1;
+            else{
+                const typename box<Ta,Agg>::agg_t & a = std::get< typename box<Ta,Agg>::agg_t>(o);
+                int ret=0;
+                for (const auto& e: a)
+                    ret+= box_type<Ta,Agg>::count_total(e);
+                return ret;
+            }
+        };
     };
 
     ///universal...

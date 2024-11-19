@@ -2,8 +2,8 @@
 // Created by kh on 01.12.20.
 //
 
-#include "wrekurs.hpp"
-#include "singular.hpp"
+#include "box/wrekurs.hpp"
+#include "util/singular.hpp"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -42,7 +42,7 @@ TEST (continuation_test, forward_singular){
 
     std::vector<int> vi{1,2,3,4,5};
     auto x = iterativ_continuation( sum_singul<int>{}, vi);
-    EXPECT_EQ(x._value,15);
+    EXPECT_EQ(x,15);
 
 }
 

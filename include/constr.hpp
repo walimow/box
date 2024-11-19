@@ -12,9 +12,9 @@
 
 #include "def.hpp"
 
-using stepworks::bxx::box;
+using stepworks::bxa::box;
 
-namespace stepworks::bxx::gen {
+namespace stepworks::bxa::gen {
 
     template<typename...>
     struct constr;

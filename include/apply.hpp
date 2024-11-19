@@ -8,9 +8,11 @@
 #include "box.hpp"
 #include "wrekurs.hpp"
 
-//using stepworks::bxx::mk_box0;
+//using stepworks::bxa::mk_box0;
 
-namespace stepworks::bxx{
+
+
+namespace stepworks::bxa{
 
     ///  Box->App, W&&->W
 
@@ -18,28 +20,10 @@ namespace stepworks::bxx{
     template<typename Ty, template<typename ...> typename Aggregate, typename W>
     auto apply(  box<Ty,Aggregate> b, const W& w, typename W::value_t&& vol)->typename W::value_t{
 
-        /*
-        struct vis{
-            const W&   _w;
-            typename W::value_t&& _vol;
-
-            auto operator()(  const Ty& v ) const  {
-                return _w( v, std::move(_vol));
-            }
-            auto operator()(  const typename box<Ty, Aggregate>::agg_t&  v ) const {
-               return stepworks::iterativ_continuation( _w, v, std::move(_vol) );
-
-            }
-        };
-        return  std::visit( vis{w, std::move(vol)},
-                           std::move(b._value)
-                    //b
-                );
-                */
-        return  b._value.index() ?
-                stepworks::iterativ_continuation( w,  std::get<typename box<Ty, Aggregate>::agg_t>(b._value), std::move(vol) )
+        return  b.index() ?
+                stepworks::iterativ_continuation( w,  std::get<typename box<Ty, Aggregate>::agg_t>(b), std::move(vol) )
                 :
-                w( std::get<typename box<Ty, Aggregate>::base_t>(b._value), std::forward<   typename  W::value_t&& >(vol)) ;
+                w( std::get<typename box<Ty, Aggregate>::base_t>(b), std::move(vol)) ;
 
     }
 
@@ -48,9 +32,7 @@ namespace stepworks::bxx{
             Aggregate>::agg_t & va,
                             const W&,
                             typename W::value_t&&,
-                            void*);   /// rekursiv definition
-
-
+                            void*);   /// bc rekursiv definition!
 
 
     template<typename Ty, template<typename ...> typename Aggregate, typename W>
@@ -59,6 +41,7 @@ namespace stepworks::bxx{
                   typename W::value_t&& vol
     ,
     //appf_t<Ty, Aggregate,W>    /// we prevent recursive definitions
+
     void*fpre
         =(void*)[](const typename box<Ty, Aggregate>::agg_t & v,const W& w, typename W::value_t&&wcx, void* pf){
         for ( const auto &e : v)
@@ -83,7 +66,6 @@ namespace stepworks::bxx{
         };
         return  std::visit( vis{w, std::move(vol), (appf_t<Ty, Aggregate,W>)fpre}, b._value );
     }
-
 
 }
 

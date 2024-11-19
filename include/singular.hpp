@@ -10,8 +10,8 @@
 #include <def.hpp>
 #include <detect/detect_iterable.hpp>
 
-using stepworks::bxx::box;
-using stepworks::bxx::detect::is_forward_iterable;
+using stepworks::bxa::box;
+using stepworks::detect::is_forward_iterable;
 
 namespace stepworks::singular {
 

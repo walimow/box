@@ -4,13 +4,13 @@
 
 
 #include "gtest/gtest.h"
-#include <box.hpp>
-#include <util.hpp>
+#include <box/box.hpp>
+#include <box/util.hpp>
 #include <vector>
 
-using stepworks::bxx::box;
+using stepworks::bxa::box;
 
-using  stepworks::bxx::box_type;
+using  stepworks::bxa::box_type;
 
 TEST (boxtest, test0)
 {
@@ -21,63 +21,60 @@ TEST (boxtest, test0)
 
    BOX b0;
 
-    EXPECT_EQ( BOX_T::typex(b0._value), 1  );
-   EXPECT_EQ( BOX_T::type_sz(b0._value), 0 ) ;  //default type: empty container
+    EXPECT_EQ( BOX_T::typex(b0._as_type()), 1  );
+   EXPECT_EQ( BOX_T::type_sz(b0._as_type()), 0 ) ;  //default type: empty container
 
     {
         BOX b0(BOX::eatom);
 
-        EXPECT_EQ( BOX_T::typex(b0._value), 0  );
-        EXPECT_EQ( BOX_T::type_sz(b0._value), -1 ) ;  //default type: empty container
+        EXPECT_EQ( BOX_T::typex(b0._as_type()), 0  );
+        EXPECT_EQ( BOX_T::type_sz(b0._as_type()), -1 ) ;  //default type: empty container
 
     }
 
 
     BOX b00 ( BOX::eaggregate );
 
-    EXPECT_EQ( BOX_T::typex(b00._value), 1  );
-    EXPECT_EQ( BOX_T::type_sz(b00._value), 0 );
+    EXPECT_EQ( BOX_T::typex(b00._as_type()), 1  );
+    EXPECT_EQ( BOX_T::type_sz(b00._as_type()), 0 );
 
 
     BOX b0b ( std::vector<BOX>{} );
 
-    EXPECT_EQ( BOX_T::typex(b0b._value), 1  );
-    EXPECT_EQ( BOX_T::type_sz(b0b._value), 0 );
+    EXPECT_EQ( BOX_T::typex(b0b._as_type()), 1  );
+    EXPECT_EQ( BOX_T::type_sz(b0b._as_type()), 0 );
 
 
 
     BOX ba0;
 
 
-    EXPECT_EQ( BOX_T::type_sz( ba0._value ), 0 );
+    EXPECT_EQ( BOX_T::type_sz( ba0._as_type() ), 0 );
 
     {
         BOX b0(1);
-        EXPECT_EQ( BOX_T::typex(b0._value), 0  );
-        EXPECT_EQ( BOX_T::type_sz(b0._value), -1 ) ;  //default type: empty container
+        EXPECT_EQ( BOX_T::typex(b0._as_type()), 0  );
+        EXPECT_EQ( BOX_T::type_sz(b0._as_type()), -1 ) ;  //default type: empty container
     }
     {
 
         BOX b0{1};
 
-        EXPECT_EQ( BOX_T::typex(b0._value), 1  );   //now aggregator with one element
-        EXPECT_EQ( BOX_T::type_sz(b0._value), 1 ) ;  //sz
-
+        EXPECT_EQ( BOX_T::typex(b0._as_type()), 1  );   //now aggregator with one element
+        EXPECT_EQ( BOX_T::type_sz(b0._as_type()), 1 ) ;  //sz
     }
-
     {
         BOX b0{1,2};
-
-        EXPECT_EQ( BOX_T::typex(b0._value), 1 );
-        EXPECT_EQ( BOX_T::type_sz(b0._value), 2 ) ;  //default type: empty container
-
+        EXPECT_EQ( BOX_T::typex(b0._as_type()), 1 );
+        EXPECT_EQ( BOX_T::type_sz(b0._as_type()), 2 ) ;  //default type: empty container
     }
-
-
    BOX b3{ 1,2,{3}};
    BOX b4({ 1, BOX({2,3,4})});
-
-  // BOX b5({ 1, BOX({2,3,4}), 7 });
-
+    {
+        BOX b0({1, BOX({2, 3, 4}), 7});
+        EXPECT_EQ( BOX_T::typex(b0._as_type()), 1 );
+        EXPECT_EQ( BOX_T::type_sz(b0._as_type()), 3 );
+        EXPECT_EQ( BOX_T::count_total(b0._as_type()), 5 );
+    }
 
 }

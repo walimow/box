@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <concepts>
 
-namespace stepworks::bxx::detect {
+namespace stepworks::detect {
 
     template<typename Ty, typename=void>
     struct has_allocator: std::false_type {

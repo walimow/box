@@ -8,13 +8,14 @@
 #include <detect//detect_rec_writing.hpp>
 #include "def.hpp"
 
-namespace stepworks::bxx::writer {
+namespace stepworks::bxa::writer {
 
 ///context
 
     template<typename...>
     struct write_cx;
 
+    ///index (==array)
     template<typename Base, template<typename...> typename Aggregate> requires(
             stepworks::has_atref< box<Base, Aggregate>,typename  box<Base, Aggregate>::agg_t,  std::size_t>::value)
     struct write_cx< box<Base, Aggregate> > {
@@ -37,10 +38,10 @@ namespace stepworks::bxx::writer {
 
         using context_t = std::size_t;
         static auto
-        apply(typename box<Base, Aggregate>::agg_t &&c_, typename box<Base, Aggregate>::agg_t e, std::size_t sz) {
+        apply(typename box<Base, Aggregate>::agg_t &&c_, typename box<Base, Aggregate>::agg_t eq, std::size_t sz) {
             auto c = std::move(c_);
             if (sz < c.size())
-                c[sz] = std::move(e);
+                c[sz] = std::move(eq);
             return c;
         }
 
@@ -53,7 +54,7 @@ namespace stepworks::bxx::writer {
     template<typename...>
     struct write;
 
-
+/// emplaceback  (==array, list)
     template<typename Base, template<typename...> typename Aggregate>
 requires(         stepworks::has_append<
         typename  box<Base, Aggregate>::agg_t,box<Base, Aggregate>, std::size_t>::value
@@ -74,6 +75,7 @@ requires(
     && !stepworks::has_atref< typename box< Base,Aggregate>::agg_t,  box<Base, Aggregate> , std::size_t  >::value
 )
 
+///just emplace_front (stack?)
 //template<typename Base, template<typename...> typename Aggregate>
 struct write<box<Base, Aggregate> > {
     static auto apply( typename box<Base, Aggregate>::agg_t && c_, typename box<Base, Aggregate>::type e) {
@@ -83,6 +85,7 @@ struct write<box<Base, Aggregate> > {
     }
 };
 
+///insert (==set)
 template<typename Base, template<typename...> typename Aggregate>
 requires(
     stepworks::has_insert<   typename box< Base,Aggregate>::agg_t ,  box<Base, Aggregate> >::value

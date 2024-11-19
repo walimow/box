@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.6)
 
 project(test)
  
@@ -30,7 +30,22 @@ box0_test.cpp
         detect_iterable_test.cpp
         app_rekurs_test.cpp
         boxm_test.cpp
-        )
+        box_test.cpp
+        boxalgebra_test.cpp
+        boxappend_test.cpp
+        boxbuild_test.cpp
+        boxcmp_test.cpp
+        boxh_test.cpp
+        boxhiter_test.cpp
+        boxiterstep_test.cpp
+        boxselect_test.cpp
+        boxtransform_test.cpp
+        boxv_test.cpp
+        bxfunction_test.cpp
+        bxiterapp_test.cpp
+        bxiterator_test.cpp
+        bxtransfer_test.cpp
+)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) 
 

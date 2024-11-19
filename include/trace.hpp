@@ -22,7 +22,7 @@ namespace stepworks::bxx::util {
 
             const std::string pre_text = " ";
             const std::string post_text = " ";
-            stepworks::bxx::ref_wrapper<std::ostream> _r{std::cout};
+            stepworks::bxa::ref_wrapper<std::ostream> _r{std::cout};
 
             int level = 0;
        //     unsigned int _count = 0;

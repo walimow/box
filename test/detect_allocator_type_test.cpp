@@ -11,7 +11,7 @@
 #include <initializer_list>
 #include <box.hpp>
 
-using stepworks::bxx::detect::has_allocator;
+using stepworks::detect::has_allocator;
 
 TEST ( detect_alloc, testvector )
 {
@@ -33,7 +33,7 @@ TEST ( detect_alloc, testinlist )
 
 TEST ( detect_alloc, test_box_inlist )
 {
-    using stepworks::bxx::box;
+    using stepworks::bxa::box;
 
     auto n = has_allocator< std::initializer_list<  typename box<int, std::initializer_list>::agg_t  >>::value ;
     EXPECT_FALSE(n);

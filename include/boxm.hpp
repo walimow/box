@@ -18,34 +18,100 @@ namespace stepworks::bxm {
 
 
     template <typename K, typename Ty, template <typename ...> typename Aggregation=std::map
-          ,class Compare = std::less<K>, typename Allocator = std::allocator<std::pair<const K, Ty> >
+            ,class Compare = std::less<K>
+                    //, typename Allocator = std::allocator<std::pair<const K, Ty>  //explicit definition of alloc seems impossible
+                    //>
+    >
+    struct boxm;
+
+
+    template <typename K, typename Ty, template <typename ...> typename Aggregation
+          ,class Compare //, typename Allocator
             >
-    struct boxm {
-        using key_t  = K;
-        using agg_t = Aggregation<K,  boxm< K, Ty, Aggregation>
-        // *, Compare, Allocator
+    struct boxm: std::variant< Ty, Aggregation<K,
+            std::variant<Ty,
+               Aggregation<K,  boxm<K,Ty,Aggregation>> ,Compare>
+               >
+            > {
+        using key_t = K;
+        using agg_t = Aggregation<K, boxm<K, Ty, Aggregation>
         >;
         using atom_t = Ty;
-        using type =   std::variant< atom_t, agg_t >;
-       // *  using alloc_t = Allocator;
+        using type = std::variant<atom_t, agg_t>;
 
-        using base_t =Ty;
+        using base_t = Ty;
 
-        type _value=agg_t {};
-        boxm(type&& v): _value (std::move(v)){     //   std::cout<<"-1-";
-        }
-        boxm(const type& a):_value(a){     // std::cout<<"-2-";
+        struct agg_position {
+            const agg_t &_container;
+            typename agg_t::const_iterator _it;
+        };
+
+        type& _value() const{
+            return (type&) *this;
         }
 
-        boxm( const agg_t& a):_value(a){      //   std::cout<<"-3-";
+        boxm(type &&v)  {     //   std::cout<<"-1-";
+             _value()=std::move(v);
         }
 
-        boxm(){
-            _value=agg_t{} ;
+        boxm(const type &a)  {     // std::cout<<"-2-";
+            _value()=a;
         }
-        boxm(std::initializer_list<   std::pair<K,   std::variant < Ty,             boxm<K,Ty,Aggregation
-             // * ,Compare,Allocator
-             >  >>> il);
+
+        boxm(const agg_t &a) {      //   std::cout<<"-3-";
+            _value()=a;
+        }
+
+        boxm() {
+            _value() = agg_t{};
+        }
+
+        boxm(std::initializer_list<std::pair<K, std::variant<Ty, boxm<K, Ty, Aggregation
+                // * ,Compare,Allocator
+        >  >>> il);
+
+        int cmp(const typename boxm<K, Ty, Aggregation>::type &other) const {
+            struct {
+                auto operator()(const Ty &la, const Ty &ra) const { return la == ra ? 0 : la < ra ? -1 : 1; };
+
+                auto operator()(const Ty &la, const typename boxm<K, Ty, Aggregation>::agg_t &rc) const {
+                    return rc.size() ? -100 : 100;
+                };
+
+                auto operator()(const typename boxm<K, Ty, Aggregation>::agg_t &lc, const Ty &ra) const {
+                    return lc.size() ? 100 : -100;
+                };
+                auto operator()(const typename boxm<K, Ty, Aggregation>::agg_t &lc,
+                            const typename boxm<K, Ty, Aggregation>::agg_t &rc) const {
+                if (lc.size() != rc.size())
+                    return lc.size() < rc.size() ? -200 : 200;
+                auto itl = lc.begin();
+                auto itr = rc.begin();
+                while (itl != lc.cend() && itr != rc.cend()) {
+                    const auto &[kl, vl] = *itl++;
+                    const auto &[kr, vr] = *itr++;
+
+                    if (kl != kr)
+                        return kl < kr ? -300 : 300;
+
+                    auto lr=vl.cmp( vr._value());
+                    if (  lr  !=0)
+                        return lr< 0 ? -400 : 400;
+
+                }
+                return 0;
+            };
+        } vis;
+            return std::visit(vis, _value(), other);
+        }
+
+        auto operator<=>(const boxm<K,Ty, Aggregation, Compare>& other)const {
+            return cmp(other._value() )<=>0;
+        }
+
+        bool operator==(const typename boxm<K, Ty, Aggregation>::type &other) const noexcept {
+            return  boxm<K,Ty,Aggregation>:: cmp( *this , other )!=0;
+        }
 
     };
 
@@ -76,7 +142,6 @@ namespace stepworks::bxm {
         }vis;
         return std::visit(vis, std::move(v));;
     }
-
 
     namespace l2r{
 
@@ -209,7 +274,7 @@ namespace stepworks::bxm {
             }
         };
 
-        return std::visit(vis{boxon,boxoff,delim}, o._value);
+        return std::visit(vis{boxon,boxoff,delim}, o._value());
     }
     template <typename K, typename Ty, template <typename ...> typename Aggregation
             // *  ,class Compare = std::less<K>, typename Allocator = std::allocator<std::pair<const K, Ty>>
@@ -282,10 +347,10 @@ namespace stepworks::bxm {
 
     template <typename K, typename Ty , template <typename...> typename Aggregation
              , class Compare
-                      /*= std::less<K>*/, typename Allocator /* = std::allocator<std::pair<const K, Ty>>*/
+             //         /*= std::less<K>*/, typename Allocator /* = std::allocator<std::pair<const K, Ty>>*/
             >
     boxm<K,Ty, Aggregation
-     ,Compare,Allocator
+     ,Compare //,Allocator
     >::boxm//<K,Ty, Aggregation>
          (std::initializer_list<  std::pair< K   ,
                  std::variant < Ty,       boxm<K,Ty,Aggregation
@@ -310,7 +375,7 @@ namespace stepworks::bxm {
         for (auto[k, v]: il) {
            a = std::visit(vis{std::move(a), std::move(k)}, std::move(v));
         }
-        _value = a;
+        _value() = a;
     }
 
 }
